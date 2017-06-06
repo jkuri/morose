@@ -520,3 +520,38 @@ export function search(req: auth.AuthRequest, res: express.Response): void {
   res.status(200).json(results);
 }
 
+export function distTag(req: auth.AuthRequest, res: express.Response): void {
+  let request = req.headers.referer.split(' ');
+  let authFile = getAuth();
+  if (request.length > 2) {
+    let pkg: any = request[2];
+    if (pkg === '[REDACTED]') {
+      pkg = req.params.package;
+    }
+
+    let organization = '';
+    if (pkg.indexOf('@') === 0) {
+      pkg = pkg.split('/');
+      if (pkg.length > 1) {
+        organization = pkg[0] + '/';
+        pkg = pkg[1];
+      } else {
+        res.status(412).json({});
+      }
+    }
+
+    let pkgVersion = pkg.split('@');
+    pkgVersion.length > 1 ? pkgVersion = pkgVersion[1] : pkgVersion = '';
+    pkg = pkgVersion[0];
+    auth.lsDistTag(organization + pkg, pkgVersion, res.locals.remote_user.name, authFile)
+      .then(tags => res.status(tags.code).json(tags.tags))
+      .catch(err => res.status(err.errorCode).json({ error: err.errorMessage}));
+  } else {
+    res.status(412).json({});
+  }
+}
+
+export function putDistTag(req: auth.AuthRequest, res: express.Response): void {
+ console.log('put new tag!');
+ res.status(200).json({ message: 'success' });
+}

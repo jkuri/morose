@@ -49,6 +49,7 @@ router.get('/-/whoami', routes.whoami);
 router.get('/-/ping', routes.ping);
 router.get('/:package/:version?', routes.getPackage);
 router.get('/:package(*)/-/:tarball(*)', routes.getTarball);
+router.get('/-/package/:package/dist-tags', routes.distTag);
 router.get('/-/package/(*)/collaborators?', auth.hasAccess, routes.getCollaborators);
 router.get('/-/org/*/package*', auth.hasAccess, routes.organizationAccess);
 router.get('/-/team/*/package*', auth.hasAccess, routes.organizationAccess);
@@ -59,6 +60,7 @@ router.delete('/:package/-rev/:version?', auth.hasAccess, routes.unpublishPackag
 router.put('/-/team/*/package*', auth.hasAccess, routes.setOrganizationAccess);
 router.put('/:package/:_rev/:revision?', auth.hasAccess, routes.updatePackageOwner);
 router.put('/:package/:revision?', auth.hasAccess, routes.updatePackage);
+router.put('/-/package/:package/dist-tags/(*)', routes.putDistTag);
 router.post('/-/package/*/access', routes.setPackageAccess);
 
 router.all('/*', index);
