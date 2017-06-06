@@ -525,27 +525,20 @@ export function distTag(req: auth.AuthRequest, res: express.Response): void {
   let authFile = getAuth();
   if (request.length > 2) {
     let pkg: any = request[2];
-    if (pkg === '[REDACTED]') {
-      pkg = req.params.package;
-    }
+    pkg = req.params.package;
 
-    let organization = '';
-    if (pkg.indexOf('@') === 0) {
-      pkg = pkg.split('/');
-      if (pkg.length > 1) {
-        organization = pkg[0] + '/';
-        pkg = pkg[1];
-      } else {
-        res.status(412).json({});
-      }
-    }
+    let splitted = pkg.split('@');
+    let pkgData = {
+      name: pkg.split('/')[1].trim(),
+      organization: pkg.split('/')[0].trim(),
+      version: splitted[splitted.length - 1]
+    };
 
-    let pkgVersion = pkg.split('@');
-    pkgVersion.length > 1 ? pkgVersion = pkgVersion[1] : pkgVersion = '';
-    pkg = pkgVersion[0];
-    auth.lsDistTag(organization + pkg, pkgVersion, res.locals.remote_user.name, authFile)
-      .then(tags => res.status(tags.code).json(tags.tags))
-      .catch(err => res.status(err.errorCode).json({ error: err.errorMessage}));
+
+    auth.lsDistTag(pkgData.organization + '/' + pkgData.name,
+      pkgData.version, res.locals.remote_user.name, authFile)
+        .then(tags => res.status(tags.code).json(tags.tags))
+        .catch(err => res.status(err.errorCode).json({ error: err.errorMessage}));
   } else {
     res.status(412).json({});
   }
